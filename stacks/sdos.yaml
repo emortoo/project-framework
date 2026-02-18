@@ -1,0 +1,176 @@
+# Software Design OS Stack
+# Use this stack when building the Software Design OS tool itself
+
+name: sdos
+description: "React + Vite + Node.js + PostgreSQL stack for Software Design OS"
+version: "1.0"
+
+frontend:
+  framework: react
+  version: "19"
+  bundler: vite
+  language: typescript
+  styling:
+    framework: tailwindcss
+    version: "4"
+    component_library: "shadcn/ui"
+  state_management:
+    client: zustand
+    server: "@tanstack/react-query"
+  routing: "react-router@7"
+  fonts:
+    heading: Inter
+    body: Inter
+    mono: "JetBrains Mono"
+
+backend:
+  runtime: node
+  framework: hono  # lightweight, fast, Cloudflare Workers compatible
+  language: typescript
+  orm: drizzle
+  validation: zod
+  auth: jwt
+
+database:
+  engine: postgresql
+  version: "16"
+  features:
+    - jsonb
+    - gin_indexes
+    - uuid_extension
+  managed_options:
+    - supabase
+    - neon
+    - railway
+
+ai:
+  primary_sdk: "@anthropic-ai/sdk"
+  abstraction: "ai"  # Vercel AI SDK for provider switching
+  supported_providers:
+    - anthropic
+    - openai
+    - custom_openai_compatible
+  features:
+    - streaming
+    - structured_output
+    - token_tracking
+
+mcp:
+  sdk: "@modelcontextprotocol/sdk"
+  transport: stdio
+  tools:
+    - sdp.getOverview
+    - sdp.getDataModel
+    - sdp.getDatabaseSchema
+    - sdp.getAPISpec
+    - sdp.getStack
+    - sdp.getDesignTokens
+    - sdp.getSection
+    - sdp.getInfrastructure
+    - sdp.validate
+
+infrastructure:
+  containerization: docker
+  orchestration: docker-compose
+  ci_cd: github-actions
+  hosting_options:
+    - local_docker
+    - railway
+    - modal
+    - fly_io
+    - vercel_frontend_only
+
+testing:
+  unit: vitest
+  e2e: playwright
+  api: vitest
+
+monorepo:
+  tool: pnpm_workspaces
+  packages:
+    - apps/web        # React frontend
+    - apps/api        # Hono API server
+    - apps/mcp        # MCP server
+    - packages/shared  # Shared types, schemas, utils
+    - packages/sdp     # SDP format parser/generator
+
+project_structure: |
+  software-design-os/
+  ├── apps/
+  │   ├── web/                    # React frontend
+  │   │   ├── src/
+  │   │   │   ├── components/     # Shared UI components
+  │   │   │   ├── features/       # Feature-based modules
+  │   │   │   │   ├── projects/   # Project list, create, delete
+  │   │   │   │   ├── pipeline/   # Pipeline view, stage navigation
+  │   │   │   │   ├── stages/     # Individual stage editors
+  │   │   │   │   │   ├── product-definition/
+  │   │   │   │   │   ├── data-model/
+  │   │   │   │   │   ├── database/
+  │   │   │   │   │   ├── api-design/
+  │   │   │   │   │   ├── stack/
+  │   │   │   │   │   ├── design-system/
+  │   │   │   │   │   ├── sections/
+  │   │   │   │   │   ├── infrastructure/
+  │   │   │   │   │   └── export/
+  │   │   │   │   ├── export/     # SDP export and preview
+  │   │   │   │   └── settings/   # User config, API keys, MCP
+  │   │   │   ├── hooks/          # Custom React hooks
+  │   │   │   ├── stores/         # Zustand stores
+  │   │   │   ├── lib/            # Utilities
+  │   │   │   └── App.tsx
+  │   │   └── package.json
+  │   ├── api/                    # Hono backend
+  │   │   ├── src/
+  │   │   │   ├── routes/         # API route handlers
+  │   │   │   ├── services/       # Business logic
+  │   │   │   ├── ai/             # AI provider integration
+  │   │   │   │   ├── providers/  # Claude, OpenAI adapters
+  │   │   │   │   └── prompts/    # Stage-specific prompt templates
+  │   │   │   ├── db/             # Drizzle schema + migrations
+  │   │   │   └── index.ts
+  │   │   └── package.json
+  │   └── mcp/                    # MCP server
+  │       ├── src/
+  │       │   ├── tools/          # MCP tool implementations
+  │       │   └── index.ts
+  │       └── package.json
+  ├── packages/
+  │   ├── shared/                 # Shared types
+  │   │   ├── src/
+  │   │   │   ├── types/          # TypeScript interfaces
+  │   │   │   ├── schemas/        # Zod validation schemas
+  │   │   │   └── constants/      # Shared constants
+  │   │   └── package.json
+  │   └── sdp/                    # SDP format library
+  │       ├── src/
+  │       │   ├── parser.ts       # Parse SDP files
+  │       │   ├── generator.ts    # Generate SDP packages
+  │       │   ├── validator.ts    # Cross-reference validation
+  │       │   └── types.ts        # SDP type definitions
+  │       └── package.json
+  ├── docker-compose.yml
+  ├── Dockerfile
+  ├── pnpm-workspace.yaml
+  ├── turbo.json
+  └── package.json
+
+conventions:
+  naming:
+    files: kebab-case
+    components: PascalCase
+    functions: camelCase
+    constants: UPPER_SNAKE_CASE
+    types: PascalCase
+  imports:
+    prefer_named: true
+    path_aliases:
+      "@/": "src/"
+      "@shared/": "packages/shared/src/"
+      "@sdp/": "packages/sdp/src/"
+  patterns:
+    - "Feature-based folder structure"
+    - "Colocation of tests with source files"
+    - "Zod schemas as single source of truth for validation"
+    - "Drizzle for type-safe database queries"
+    - "Server state via TanStack Query, client state via Zustand"
